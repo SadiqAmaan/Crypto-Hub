@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
-import { server } from "../index";
+import { getData } from "../api/apiClient";
 import ErrorComponent from "./ErrorComponent";
 import { Container, HStack, Button, RadioGroup, Radio } from "@chakra-ui/react";
 import Loader from "./Loader";
@@ -26,9 +25,10 @@ const Coins = () => {
   useEffect(() => {
     const fetchCoins = async () => {
       try {
-        const { data } = await axios.get(
-          `${server}/coins/markets?vs_currency=${currency}&page=${page}`
-        );
+        const data = await getData("/coins/markets", {
+          vs_currency: currency,
+          page: page,
+        });
         setCoins(data);
         setLoading(false);
       } catch (error) {

@@ -1,8 +1,7 @@
 import React from "react";
 import { useState, useEffect } from "react";
-import { server } from "../index";
+import { getData } from "../api/apiClient";
 import Chart from "./Chart";
-import axios from "axios";
 import {
   Container,
   Box,
@@ -39,34 +38,41 @@ const CoinDetails = () => {
   const btns = ["24h", "7d", "14d", "30d", "60d", "200d", "365d", "max"];
 
   const switchChartStats = (key) => {
-switch(key){
-  case '7d': setDays('7d'); 
-    break;
-  case '14d': setDays('14d');
-    break;
-  case '30d': setDays('30d'); 
-    break;
-  case '60d': setDays('60d'); 
-    break;
-  case '200d': setDays('200d'); 
-    break;
-  case '365d': setDays('365d');
-    break;
-  case 'max': setDays('max'); 
-    break;
-    default:  setDays('24h'); 
-    break;
-}
-
+    switch (key) {
+      case "7d":
+        setDays("7d");
+        break;
+      case "14d":
+        setDays("14d");
+        break;
+      case "30d":
+        setDays("30d");
+        break;
+      case "60d":
+        setDays("60d");
+        break;
+      case "200d":
+        setDays("200d");
+        break;
+      case "365d":
+        setDays("365d");
+        break;
+      case "max":
+        setDays("max");
+        break;
+      default:
+        setDays("24h");
+        break;
+    }
   };
 
   useEffect(() => {
     const fetchCoin = async () => {
       try {
-        const { data } = await axios.get(`${server}/coins/${params.id}`);
-
-        const { data: chartData } = await axios.get(
-          `${server}/coins/${params.id}/market_chart?vs_currency=${currency}&days=${days}`
+        const data = await getData(`/coins/${params.id}`);
+        const chartData = await getData(
+          `/coins/${params.id}/market_chart`,
+          { vs_currency: currency, days: days }
         );
 
         setCoin(data);
@@ -92,11 +98,11 @@ switch(key){
         <Loader />
       ) : (
         <>
-          <Box borderWidth={"1"} w={"full"} backgroundColor={"white"} mt={"10"} >
+          <Box borderWidth={"1"} w={"full"} backgroundColor={"white"} mt={"10"}>
             <Chart arr={chartArray} currency={currencySymbol} days={days} />
           </Box>
 
-          <HStack mr={"4"} mt={"4"} mb={"4"} overflowX={'auto'}>
+          <HStack mr={"4"} mt={"4"} mb={"4"} overflowX={"auto"}>
             {btns.map((i) => (
               <Button key={"i"} onClick={() => switchChartStats(i)}>
                 {i}
@@ -148,11 +154,9 @@ switch(key){
                 {coin.market_data.price_change_percentage_24h}%{" "}
               </StatHelpText>
             </Stat>
-            <Badge
-              fontSize={"2xl"}
-              bgColor={"blackAlpha.800"}
-              color={"white"}
-            >{`#${coin.market_cap_rank}`}</Badge>
+            <Badge fontSize={"2xl"} bgColor={"blackAlpha.800"} color={"white"}>
+              {`#${coin.market_cap_rank}`}
+            </Badge>
             <CustomBar
               high={`${currencySymbol} ${coin.market_data.high_24h[currency]} `}
               low={`${currencySymbol} ${coin.market_data.low_24h[currency]} `}

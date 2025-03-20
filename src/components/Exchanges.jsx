@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
-import { server } from "../index";
+import { getData } from "../api/apiClient";
 import ErrorComponent from './ErrorComponent'
 import {
   Container,
@@ -20,19 +19,18 @@ const Exchanges = () => {
   useEffect(() => {
     const fetchExchanges = async () => {
       try {
-        const { data } = await axios.get(`${server}/exchanges?per_page=100`);
-      setExchanges(data);
-      setLoading(false);
-      
+        const data = await getData("/exchanges", { per_page: 100 });
+        setExchanges(data);
+        setLoading(false);
       } catch (error) {
-        setError(true)
-        setLoading(false)
+        setError(true);
+        setLoading(false);
       }
     };
     fetchExchanges();
   }, []);
 
-  if(error) return <ErrorComponent message={'Error While DFetching Exchanges'}/>
+  if (error) return <ErrorComponent message={'Error While Fetching Exchanges'} />
 
   return (
     <Container maxW={"container.xl"}>
@@ -67,11 +65,11 @@ const ExchangeCard = ({ name, image, rank, url }) => (
       p={"6"}
       borderRadius={"lg"}
       transition={"all .5s"}
-      margin="6" 
+      margin="6"
       color={'black'}
       backgroundColor={'white'}
       css={{
-        "&:hover":{
+        "&:hover": {
           transform: 'scale(1.1)'
         }
       }}
@@ -84,4 +82,5 @@ const ExchangeCard = ({ name, image, rank, url }) => (
     </VStack>
   </a>
 );
+
 export default Exchanges;
