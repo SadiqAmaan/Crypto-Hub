@@ -3,7 +3,7 @@ import { Box, Image, Text } from "@chakra-ui/react";
 import csrc from "../assets/crypto-home.png";
 import { motion } from "framer-motion";
 
-const Home = () => {
+function Home() {
   return (
     <Box bgColor={"blackAlpha.900"} w={"full"} h={"90vh"} >
       <motion.div
@@ -39,6 +39,6 @@ const Home = () => {
       </Text>
     </Box>
   );
-};
+}
 
 export default Home;

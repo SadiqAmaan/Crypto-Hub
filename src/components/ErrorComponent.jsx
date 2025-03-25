@@ -1,7 +1,7 @@
 import React from "react";
 import { Alert, AlertIcon } from "@chakra-ui/react";
 
-const ErrorComponent = (message) => {
+const ErrorComponent = React.memo(({ message }) => {
   return (
     <Alert
       status="error"
@@ -12,9 +12,9 @@ const ErrorComponent = (message) => {
       width={"container.lg"}
     >
       <AlertIcon />
-      {message} 
+      {message}
     </Alert>
   );
-};
+});
 
 export default ErrorComponent;

@@ -1,7 +1,7 @@
 import React from 'react'
 import {VStack, Box, Spinner} from '@chakra-ui/react'
 
-const Loader = () => {
+const Loader = React.memo(() => {
   return (
     <VStack h={'90vh'} justifyContent={'center'}>
 <Box transform={'scale(3)'}>
@@ -9,6 +9,6 @@ const Loader = () => {
 </Box>
     </VStack>
   )
-}
+});
 
 export default Loader

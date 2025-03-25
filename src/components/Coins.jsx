@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo, useCallback } from "react";
 import { getData } from "../api/apiClient";
 import ErrorComponent from "./ErrorComponent";
 import { Container, HStack, Button, RadioGroup, Radio } from "@chakra-ui/react";
@@ -12,15 +12,17 @@ const Coins = () => {
   const [page, setPage] = useState(1);
   const [currency, setCurrency] = useState("inr");
 
-  const currencySymbol =
-    currency === "inr" ? "₹" : currency === "eur" ? "€" : "$";
+  const currencySymbol = useMemo(
+    () => (currency === "inr" ? "₹" : currency === "eur" ? "€" : "$"),
+    [currency]
+  );
 
-  const changePage = (page) => {
+  const changePage = useCallback((page) => {
     setPage(page);
     setLoading(true);
-  };
+  }, []);
 
-  const btns = new Array(100).fill(1);
+  const btns = useMemo(() => new Array(100).fill(1), []);
 
   useEffect(() => {
     const fetchCoins = async () => {

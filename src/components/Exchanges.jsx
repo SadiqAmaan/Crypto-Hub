@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, memo } from "react";
 import { getData } from "../api/apiClient";
 import ErrorComponent from './ErrorComponent'
 import {
@@ -55,7 +55,7 @@ const Exchanges = () => {
   );
 };
 
-const ExchangeCard = ({ name, image, rank, url }) => (
+const ExchangeCard = memo(({ name, image, rank, url }) => (
   <a href={url} target={"blank"}>
     <VStack
       w={"52"}
@@ -81,6 +81,6 @@ const ExchangeCard = ({ name, image, rank, url }) => (
       <Text noOfLines={"1"} size={'md'} fontWeight={'800'}>{name}</Text>
     </VStack>
   </a>
-);
+));
 
 export default Exchanges;

@@ -2,7 +2,7 @@ import React from "react";
 import { HStack, Button } from "@chakra-ui/react";
 import { Link } from "react-router-dom";
 
-const Header = () => {
+const Header = React.memo(() => {
   return (
     <HStack p={"6"} shadow={"base"} backgroundColor={"blackAlpha.900"} height={'10vh'}>
       <Button
@@ -34,6 +34,6 @@ const Header = () => {
       </Button>
     </HStack>
   );
-};
+});
 
 export default Header;

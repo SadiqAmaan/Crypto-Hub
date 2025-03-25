@@ -1,5 +1,5 @@
 import React from "react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo, useCallback } from "react";
 import { getData } from "../api/apiClient";
 import Chart from "./Chart";
 import {
@@ -33,11 +33,16 @@ const CoinDetails = () => {
   const [chartArray, setchartArray] = useState([]);
 
   const params = useParams();
-  const currencySymbol =
-    currency === "inr" ? "₹" : currency === "eur" ? "€" : "$";
-  const btns = ["24h", "7d", "14d", "30d", "60d", "200d", "365d", "max"];
+  const currencySymbol = useMemo(
+    () => (currency === "inr" ? "₹" : currency === "eur" ? "€" : "$"),
+    [currency]
+  );
+  const btns = useMemo(
+    () => ["24h", "7d", "14d", "30d", "60d", "200d", "365d", "max"],
+    []
+  );
 
-  const switchChartStats = (key) => {
+  const switchChartStats = useCallback((key) => {
     switch (key) {
       case "7d":
         setDays("7d");
@@ -64,7 +69,7 @@ const CoinDetails = () => {
         setDays("24h");
         break;
     }
-  };
+  }, []);
 
   useEffect(() => {
     const fetchCoin = async () => {
@@ -78,15 +83,14 @@ const CoinDetails = () => {
         setCoin(data);
         setchartArray(chartData.prices);
         setLoading(false);
-        console.log(data);
       } catch (error) {
         setError(true);
         setLoading(false);
       }
     };
-    const Interval = setInterval(() => {
-      fetchCoin();
-    }, 1000);
+  const Interval = setInterval(() => {
+    fetchCoin();
+  }, 10000);
     return () => clearInterval(Interval);
   }, [params.id, currency, days, setLoading]);
 
@@ -104,7 +108,7 @@ const CoinDetails = () => {
 
           <HStack mr={"4"} mt={"4"} mb={"4"} overflowX={"auto"}>
             {btns.map((i) => (
-              <Button key={"i"} onClick={() => switchChartStats(i)}>
+              <Button key={i} onClick={() => switchChartStats(i)}>
                 {i}
               </Button>
             ))}

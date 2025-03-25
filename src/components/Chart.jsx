@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import { Line } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -20,28 +20,29 @@ ChartJS.register(
   Tooltip,
   Legend
 );
-const Chart = ({ arr = [], currency, days }) => {
-  const prices = [];
-  const date = [];
+const Chart = React.memo(({ arr = [], currency, days }) => {
+  const data = useMemo(() => {
+    const prices = [];
+    const date = [];
 
-  
-  for (let i = 0; i < arr.length; i++) {
-    
-    days === '24h'? date.push(new Date(arr[i][0]).toLocaleTimeString()): date.push(new Date(arr[i][0]).toLocaleDateString())
-    prices.push(arr[i][1])   
-  }
-  const data ={
-        labels: date,
-        datasets: [
-          {
-            label: `Price in ${currency}`,
-            data : prices,
-           color:'black',
-            backgroundColor: "red",
-            opacity: "0.5",
-          },
-        ]
-  }
+    for (let i = 0; i < arr.length; i++) {
+      days === '24h' ? date.push(new Date(arr[i][0]).toLocaleTimeString()) : date.push(new Date(arr[i][0]).toLocaleDateString());
+      prices.push(arr[i][1]);
+    }
+
+    return {
+      labels: date,
+      datasets: [
+        {
+          label: `Price in ${currency}`,
+          data: prices,
+          color: 'black',
+          backgroundColor: "red",
+          opacity: "0.5",
+        },
+      ]
+    };
+  }, [arr, currency, days]);
 
 
   return (
@@ -52,6 +53,6 @@ const Chart = ({ arr = [], currency, days }) => {
       data={data}
     />
   );
-};
+});
 
 export default Chart;
