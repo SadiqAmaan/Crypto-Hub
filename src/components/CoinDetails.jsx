@@ -88,10 +88,7 @@ const CoinDetails = () => {
         setLoading(false);
       }
     };
-  const Interval = setInterval(() => {
-    fetchCoin();
-  }, 10000);
-    return () => clearInterval(Interval);
+  fetchCoin();
   }, [params.id, currency, days, setLoading]);
 
   if (error) return <ErrorComponent message={"Error While Fetching Coin"} />;
