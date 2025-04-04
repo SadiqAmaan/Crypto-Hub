@@ -1,5 +1,6 @@
 import React from "react";
-import { useState, useEffect, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { getData } from "../api/apiClient";
 import Chart from "./Chart";
 import {
@@ -25,12 +26,8 @@ import { useParams } from "react-router-dom";
 import ErrorComponent from "./ErrorComponent";
 
 const CoinDetails = () => {
-  const [coin, setCoin] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
   const [currency, setCurrency] = useState("inr");
   const [days, setDays] = useState("24h");
-  const [chartArray, setchartArray] = useState([]);
 
   const params = useParams();
   const currencySymbol = useMemo(
@@ -71,36 +68,36 @@ const CoinDetails = () => {
     }
   }, []);
 
-  useEffect(() => {
-    const fetchCoin = async () => {
-      try {
-        const data = await getData(`/coins/${params.id}`);
-        const chartData = await getData(
-          `/coins/${params.id}/market_chart`,
-          { vs_currency: currency, days: days }
-        );
+  const { data: coin, isLoading: coinLoading, error: coinError } = useQuery({
+    queryKey: ['coin', params.id],
+    queryFn: () => getData(`/coins/${params.id}`),
+    staleTime: 1000 * 60 * 5, // 5 minutes
+    cacheTime: 1000 * 60 * 10, // 10 minutes
+  });
 
-        setCoin(data);
-        setchartArray(chartData.prices);
-        setLoading(false);
-      } catch (error) {
-        setError(true);
-        setLoading(false);
-      }
-    };
-  fetchCoin();
-  }, [params.id, currency, days, setLoading]);
+  const { data: chartData, isLoading: chartLoading, error: chartError } = useQuery({
+    queryKey: ['coin-chart', params.id, currency, days],
+    queryFn: () => getData(`/coins/${params.id}/market_chart`, {
+      vs_currency: currency,
+      days: days
+    }),
+    staleTime: 1000 * 60 * 5, // 5 minutes
+    cacheTime: 1000 * 60 * 10, // 10 minutes
+  });
+
+  const isLoading = coinLoading || chartLoading;
+  const error = coinError || chartError;
 
   if (error) return <ErrorComponent message={"Error While Fetching Coin"} />;
 
   return (
     <Container maxWidth={"container.xl"}>
-      {loading ? (
+      {isLoading ? (
         <Loader />
       ) : (
         <>
           <Box borderWidth={"1"} w={"full"} backgroundColor={"white"} mt={"10"}>
-            <Chart arr={chartArray} currency={currencySymbol} days={days} />
+            <Chart arr={chartData?.prices || []} currency={currencySymbol} days={days} />
           </Box>
 
           <HStack mr={"4"} mt={"4"} mb={"4"} overflowX={"auto"}>

@@ -1,4 +1,5 @@
-import React, { useEffect, useState, useMemo, useCallback } from "react";
+import React, { useState, useMemo, useCallback } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { getData } from "../api/apiClient";
 import ErrorComponent from "./ErrorComponent";
 import { Container, HStack, Button, RadioGroup, Radio } from "@chakra-ui/react";
@@ -6,9 +7,6 @@ import Loader from "./Loader";
 import CoinCard from "./CoinCard";
 
 const Coins = () => {
-  const [coins, setCoins] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
   const [page, setPage] = useState(1);
   const [currency, setCurrency] = useState("inr");
 
@@ -19,33 +17,25 @@ const Coins = () => {
 
   const changePage = useCallback((page) => {
     setPage(page);
-    setLoading(true);
   }, []);
 
   const btns = useMemo(() => new Array(100).fill(1), []);
 
-  useEffect(() => {
-    const fetchCoins = async () => {
-      try {
-        const data = await getData("/coins/markets", {
-          vs_currency: currency,
-          page: page,
-        });
-        setCoins(data);
-        setLoading(false);
-      } catch (error) {
-        setError(true);
-        setLoading(false);
-      }
-    };
-    fetchCoins();
-  }, [currency, page]);
+  const { data: coins, isLoading, error } = useQuery({
+    queryKey: ['coins', currency, page],
+    queryFn: () => getData("/coins/markets", {
+      vs_currency: currency,
+      page: page,
+    }),
+    staleTime: 1000 * 60 * 5, // 5 minutes
+    cacheTime: 1000 * 60 * 10, // 10 minutes
+  });
 
   if (error) return <ErrorComponent message={"Error While Fetching Coins"} />;
 
   return (
     <Container maxW={"container.xl"}>
-      {loading ? (
+      {isLoading ? (
         <Loader />
       ) : (
         <>
@@ -63,7 +53,7 @@ const Coins = () => {
             </HStack>
           </RadioGroup>
           <HStack wrap={"wrap"} justifyContent={"space-evenly"}>
-            {coins.map((i) => (
+            {coins?.map((i) => (
               <CoinCard
                 id={i.id}
                 key={i.id}

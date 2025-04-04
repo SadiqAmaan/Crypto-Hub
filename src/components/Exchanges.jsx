@@ -1,4 +1,5 @@
-import React, { useEffect, useState, memo } from "react";
+import React, { memo } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { getData } from "../api/apiClient";
 import ErrorComponent from './ErrorComponent'
 import {
@@ -12,34 +13,23 @@ import {
 import Loader from "./Loader";
 
 const Exchanges = () => {
-  const [exchanges, setExchanges] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
-
-  useEffect(() => {
-    const fetchExchanges = async () => {
-      try {
-        const data = await getData("/exchanges", { per_page: 100 });
-        setExchanges(data);
-        setLoading(false);
-      } catch (error) {
-        setError(true);
-        setLoading(false);
-      }
-    };
-    fetchExchanges();
-  }, []);
+  const { data: exchanges, isLoading, error } = useQuery({
+    queryKey: ['exchanges'],
+    queryFn: () => getData("/exchanges", { per_page: 100 }),
+    staleTime: 1000 * 60 * 5, // 5 minutes
+    cacheTime: 1000 * 60 * 10, // 10 minutes
+  });
 
   if (error) return <ErrorComponent message={'Error While Fetching Exchanges'} />
 
   return (
     <Container maxW={"container.xl"}>
-      {loading ? (
+      {isLoading ? (
         <Loader />
       ) : (
         <>
           <HStack wrap={"wrap"} justifyContent={'space-evenly'}>
-            {exchanges.map((i) => (
+            {exchanges?.map((i) => (
               <ExchangeCard
                 key={i.id}
                 name={i.name}
